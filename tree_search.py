@@ -1,6 +1,7 @@
+from copy import deepcopy
+
 from node import Node
 from board import Board
-
 
 """
 
@@ -13,12 +14,15 @@ l.pop(0)
 
 class TreeSearch(object):
 
-    def __init__(self):
-        self.correct_state = [1, 2, 3, 0]
+    def __init__(self, goal_state, cols, rows, state):
+        self.correct_state = goal_state
         self.root_node = Node(
             depth=0,
-            board=Board(2, 2, [3, 0, 1, 2])
+            board=Board(cols, rows, state)
         )
+        self.COLS = cols
+        self.ROWS = rows
+
         self.open = [self.root_node]
         self.closed = []
         self.board_moves = {
@@ -43,6 +47,7 @@ class TreeSearch(object):
         pass
         while self.open:
             visit_node = self.open.pop(0)
+            # visit_node.print_node()
             if self.check_goal_state(visit_node):
                 sol_node = deepcopy(visit_node)
 
@@ -55,6 +60,16 @@ class TreeSearch(object):
                 node = children.pop(0)
                 self.open.append(node)
             self.closed.append(visit_node)
+
+    def best_first_search(self, heuristic=None):
+        """
+        Best First Search with choice between 2 heuristics
+        Heuristic 1: Manhattan distance
+        Heuristic 2: Sum of permutation inversions
+        :return: set of nodes by order of visit? final goal node?? on va voir
+        """
+        pass
+
 
     def generate_children(self, parent_depth, parent_node):
         """This function should generate all possible moves except for the move
@@ -98,12 +113,29 @@ class TreeSearch(object):
     def unravel_solution(self, sol_node):
         self.solution.insert(0, (sol_node.board.action, sol_node.board.state))
 
+    def manhattan_distance(self, current_state):
+        """
+        Computes the sum of how far each digit is from its goal position
+        :param current_state: list of int, current state?is current state?
+        :return: int, total manhattan distance
+        """
+        pass
+        MANHATTAN_DISTANCE = 0
 
+        # compute row diff and col diff of digit's current and goal positions, largest diff = # moves to get to goal
+        for i in range(self.ROWS):
+            for j in range(self.COLS):
+                goal_position = self.correct_state.index(current_state[self.ROWS * i + j - 1]) + 1
+                goal_position_row = goal_position / self.COLS
+                goal_position_col = goal_position - (self.COLS * goal_position_row)
 
+                row_diff = abs(goal_position_row - i - 1)
+                col_diff = abs(goal_position_col - j - 1)
 
+                # add largest diff to manhattan distance sum
+                if row_diff >= col_diff:
+                    MANHATTAN_DISTANCE += row_diff
+                else:
+                    MANHATTAN_DISTANCE += col_diff
 
-
-
-
-
-
+        return MANHATTAN_DISTANCE
