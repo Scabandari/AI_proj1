@@ -5,7 +5,9 @@ from tree_search import TreeSearch
 ts = TreeSearch()
 
 sol_node = ts.depth_first_search()
-sol_node.print_node()
+solution_path = ts.unravel_solution(sol_node)
+print(solution_path)
+#sol_node.print_node()
 
 
 # def swap(state, zero_index, swap_index):

@@ -1,23 +1,18 @@
 from node import Node
 from board import Board
-
-
-"""
-
-array = [1,2,3,4,5,6]
-array.insert(0,var)
-l = ['a', 'b', 'c', 'd']
-l.pop(0)
-"""
+from copy import deepcopy
 
 
 class TreeSearch(object):
 
     def __init__(self):
-        self.correct_state = [1, 2, 3, 0]
+        # self.correct_state = [1, 2, 3, 0]
+        self.correct_state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,  0]
+
         self.root_node = Node(
             depth=0,
-            board=Board(2, 2, [3, 0, 1, 2])
+            #board=Board(2, 2, [3, 0, 1, 2])
+            board=Board(4, 3, [1, 0, 3, 7, 5, 2, 6, 4, 9, 10, 11, 8])
         )
         self.open = [self.root_node]
         self.closed = []
@@ -96,9 +91,19 @@ class TreeSearch(object):
         return True
 
     def unravel_solution(self, sol_node):
-        self.solution.insert(0, (sol_node.board.action, sol_node.board.state))
+        """This function should recursively add solution nodes board and move info to
+        self.solution so we can display it or add it to solution text files """
+        if sol_node.parent_node is None:
+            self.solution.insert(0, (0, sol_node.board.state))
+            return self.solution
 
+        self.solution.insert(0, (sol_node.action, sol_node.board.state))
+        self.unravel_solution(sol_node.parent_node)
+        return self.solution
 
+    def reset_solution(self):
+        """In case we're using self.solution with multiple different search techniques"""
+        self.solution = []
 
 
 
