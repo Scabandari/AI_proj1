@@ -23,12 +23,16 @@ class Board(object):
         self.state = state
 
     def print_board(self):
-        print("================================")
+        print("=============")
         for i in range(self.rows):
             for j in range(self.cols):
-                print("%i " % (self.state[i*self.cols + j]), end='')
+                num = (self.state[i*self.cols + j])
+                if num < 10:
+                    print("{}   ".format(num), end='')
+                else:
+                    print("{}  ".format(num), end='')
             print("")
-        print("================================\n\n")
+        print("=============\n\n")
 
     def make_move(self, move):
         """This function takes a move corresponding to the moves listed above
@@ -36,15 +40,10 @@ class Board(object):
             Returns false if move is invalid. ie off board"""
         zero_index = self.state.index(0)
         state = deepcopy(self.state)
-       # bool_return = True
         action = None
         new_state = None
         if move is Board.UP:
             new_state = self.up(zero_index, state)
-            # if not new_state:  # todo also do this at end
-            #     return False, False
-            #new_zero_index = new_state.index(0)  #todo do this at the end
-            #action = deepcopy(Board.letters[new_zero_index])
         elif move is Board.UP_RIGHT:
             new_state = self.up_right(zero_index, state)
         elif move is Board.RIGHT:
