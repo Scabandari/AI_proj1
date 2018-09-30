@@ -21,6 +21,17 @@ class Board(object):
         self.rows = rows
         self.cols = cols
         self.state = state
+        self.move_series = [0]  # to break ties between nodes we need to know the latest move for each
+        self.tie_breaker = {
+            'UP': 0,
+            'UP_RIGHT': 1,
+            'RIGHT': 2,
+            'DOWN_RIGHT': 3,
+            'DOWN': 4,
+            'DOWN_LEFT': 5,
+            'LEFT': 6,
+            'UP_LEFT': 7
+        }
 
     def print_board(self):
         print("=============")
@@ -44,20 +55,28 @@ class Board(object):
         new_state = None
         if move is Board.UP:
             new_state = self.up(zero_index, state)
+            self.move_series.append(self.tie_breaker['UP']) # todo test these
         elif move is Board.UP_RIGHT:
             new_state = self.up_right(zero_index, state)
+            self.move_series.append(self.tie_breaker['UP_RIGHT'])
         elif move is Board.RIGHT:
             new_state = self.right(zero_index, state)
+            self.move_series.append(self.tie_breaker['RIGHT'])
         elif move is Board.DOWN_RIGHT:
             new_state = self.down_right(zero_index, state)
+            self.move_series.append(self.tie_breaker['DOWN_RIGHT'])
         elif move is Board.DOWN:
             new_state = self.down(zero_index, state)
+            self.move_series.append(self.tie_breaker['DOWN'])
         elif move is Board.DOWN_LEFT:
             new_state = self.down_left(zero_index, state)
+            self.move_series.append(self.tie_breaker['DOWN_LEFT'])
         elif move is Board.LEFT:
             new_state = self.left(zero_index, state)
+            self.move_series.append(self.tie_breaker['LEFT'])
         elif move is Board.UP_LEFT:
             new_state = self.up_left(zero_index, state)
+            self.move_series.append(self.tie_breaker['UP_LEFT'])
         else:
             print("\n\n\n\n\nERROR: not a valid board move\n\n\n\n\n")
 
