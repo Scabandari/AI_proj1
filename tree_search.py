@@ -62,7 +62,6 @@ class TreeSearch(object):
         dfs_closed = deepcopy(self.closed)
         while dfs_open:
             visit_node = dfs_open.pop(0)
-            # visit_node.print_node()
             if self.check_goal_state(visit_node):
                 return visit_node
 
