@@ -1,5 +1,5 @@
 from copy import deepcopy
-
+from operator import itemgetter
 from node import Node
 from board import Board
 
@@ -22,7 +22,7 @@ class TreeSearch(object):
         )
         self.COLS = cols
         self.ROWS = rows
-
+        self.HEURISTIC = False
         self.open = [self.root_node]
         self.closed = []
         self.board_moves = {
@@ -47,7 +47,7 @@ class TreeSearch(object):
         pass
         while self.open:
             visit_node = self.open.pop(0)
-            # visit_node.print_node()
+            visit_node.print_node()
             if self.check_goal_state(visit_node):
                 sol_node = deepcopy(visit_node)
 
@@ -60,16 +60,6 @@ class TreeSearch(object):
                 node = children.pop(0)
                 self.open.append(node)
             self.closed.append(visit_node)
-
-    def best_first_search(self, heuristic=None):
-        """
-        Best First Search with choice between 2 heuristics
-        Heuristic 1: Manhattan distance
-        Heuristic 2: Sum of permutation inversions
-        :return: set of nodes by order of visit? final goal node?? on va voir
-        """
-        pass
-
 
     def generate_children(self, parent_depth, parent_node):
         """This function should generate all possible moves except for the move
@@ -94,7 +84,11 @@ class TreeSearch(object):
             Node is truly new and therefor useful"""
         if TreeSearch.same_state(child_node, parent_node):
             return False
-        for node in self.open:
+        for item in self.open:
+            if self.HEURISTIC:
+                node = item[1]
+            else:
+                node = item
             if TreeSearch.same_state(node, child_node):
                 return False
         for node in self.closed:
@@ -126,7 +120,7 @@ class TreeSearch(object):
         for i in range(self.ROWS):
             for j in range(self.COLS):
                 goal_position = self.correct_state.index(current_state[self.ROWS * i + j - 1]) + 1
-                goal_position_row = goal_position / self.COLS
+                goal_position_row = int(goal_position / self.COLS)
                 goal_position_col = goal_position - (self.COLS * goal_position_row)
 
                 row_diff = abs(goal_position_row - i - 1)
@@ -139,3 +133,40 @@ class TreeSearch(object):
                     MANHATTAN_DISTANCE += col_diff
 
         return MANHATTAN_DISTANCE
+
+    def permutation_inversions(self, current_state):
+        pass
+
+
+    def best_first_search(self, heuristic=None):
+        """
+        Best First Search with choice between 2 heuristics
+        Heuristic 1: Manhattan distance
+        Heuristic 2: Sum of permutation inversions
+        :return: set of nodes by order of visit? final goal node?? on va voir
+        """
+        self.HEURISTIC = True
+        self.open = [(1, self.open[0])]
+        # turned open list into a list of tuples in the format of (score, node)
+        while self.open:
+            current_visit = self.open.pop(0)
+            visit_node = current_visit[1]
+            visit_node.print_node()
+            print(current_visit[0])
+
+            if self.check_goal_state(visit_node):
+                return visit_node
+
+            children = self.generate_children(visit_node.depth, visit_node)
+            for child in children:
+                if heuristic == 1:
+                    score = self.manhattan_distance(child.board.state)
+                elif heuristic == 2:
+                    pass  # todo permutation inversions
+                else:
+                    import sys
+                    sys.exit('Invalid heuristic function')
+                self.open.append((score, child))
+            self.open.sort(key=itemgetter(0))
+            # print(self.open)
+            self.closed.append(visit_node)
