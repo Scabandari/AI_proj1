@@ -166,10 +166,10 @@ class TreeSearch(object):
     def manhattan_distance(self, current_state):
         """
         Computes the sum of how far each digit is from its goal position
-        :param current_state: list of int, current state?is current state?
+        :param current_state: current board state gotten from node currently being examined
         :return: int, total manhattan distance
         """
-        pass
+        # TODO: timeout when its stuck?
         manhattan_distance = 0
 
         # compute row diff and col diff of digit's current and goal positions, largest diff = # moves to get to goal
@@ -191,19 +191,21 @@ class TreeSearch(object):
 
         return manhattan_distance
 
-    def permutation_inversions(self, current_state):
-        pass
+    def permutation_inversions(self, current_state):  # TODO: add puzzle solvability check? even=solvable
+        """
+        for each digit, check how many digits on its right should be on its left
+        :param current_state:
+        :return: total score
+        """
         score = 0
         puzzle_size = len(current_state)
-        for i in range(puzzle_size-1):
+        for i in range(puzzle_size - 1):
             goal_position = self.correct_state.index(current_state[i])
             left_sequence = self.correct_state[:goal_position]
-            for j in range(i+1, puzzle_size):
+            for j in range(i + 1, puzzle_size):
                 if current_state[j] in left_sequence:
                     score += 1
         return score
-
-
 
     def best_first_search(self, heuristic=None):
         """
@@ -222,6 +224,8 @@ class TreeSearch(object):
             # print(current_visit[0])
 
             if self.check_goal_state(visit_node):
+                self.HEURISTIC = False
+                self.open = [self.root_node]
                 return visit_node
 
             children = self.generate_children(visit_node.depth, visit_node)
@@ -233,7 +237,7 @@ class TreeSearch(object):
                 else:
                     import sys
                     sys.exit('Invalid heuristic function')
-                # self.open.append((score + child.depth, child))  # TODO: but depth is actually g(n)??
+                # self.open.append((score + child.depth, child))
                 self.open.append((score, child))
             self.open.sort(key=itemgetter(0))
             # print(self.open)
