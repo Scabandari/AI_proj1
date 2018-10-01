@@ -17,27 +17,31 @@ import heapq as heap
 cols = 4
 rows = 3
 starting_list = [1, 0, 3, 7, 5, 2, 6, 4, 9, 10, 11, 8]
+goal_state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,  0]
 
 """"For h1 and h2 for best first search see notes on search around slide 70"""
-ts = TreeSearch(cols, rows, starting_list)
-#sol_node = ts.depth_first_search()
-sol_node = ts.astar_algo()
-solution_path = ts.unravel_solution(sol_node)
-ts.print_solution_boards()
-#output_text_file(solution_path, "puzzleDFS")
-output_text_file(solution_path, "puzzleAS-h1")
+ts = TreeSearch(goal_state, cols, rows, starting_list)
+
+# #sol_node = ts.depth_first_search()
+# sol_node = ts.astar_algo()
+# solution_path = ts.unravel_solution(sol_node)
+# ts.print_solution_boards()
+# #output_text_file(solution_path, "puzzleDFS")
+# output_text_file(solution_path, "puzzleAS-h1")
 
 
 # OLD
-goal_state = [1, 2, 3, 4, 5, 0]
-
-cols = 3
-rows = 2
-initial_state = [3, 0, 4, 2, 5, 1]
-ts = TreeSearch(goal_state, cols, rows, initial_state)
+# goal_state = [1, 2, 3, 4, 5, 0]
+#
+# cols = 3
+# rows = 2
+# initial_state = [3, 0, 4, 2, 5, 1]
+# ts = TreeSearch(goal_state, cols, rows, initial_state)
 
 # sol_node = ts.depth_first_search()
-sol_node = ts.best_first_search(1)  # manhattan
-sol_node.print_node()
+sol_node = ts.best_first_search(2)
+# sol_node.print_node()
+ts.unravel_solution(sol_node)
+ts.print_solution_boards()
 
 
