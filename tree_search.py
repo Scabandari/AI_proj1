@@ -57,7 +57,7 @@ class TreeSearch(object):
                 return False
         return True
 
-    def depth_first_search(self):  # todo DFS not finding solution?
+    def depth_first_search(self, depth):  # todo DFS not finding solution?
         dfs_open = deepcopy(self.open)
         dfs_closed = deepcopy(self.closed)
         while dfs_open:
@@ -65,6 +65,10 @@ class TreeSearch(object):
             if self.check_goal_state(visit_node):
                 return visit_node
 
+            # visit_node.print_node()
+            if visit_node.depth >= depth:
+                # print("ey")
+                continue
             children = self.generate_children(visit_node.depth, visit_node)
             # add children to open, depth first --> LIFO
             while children:
