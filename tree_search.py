@@ -230,9 +230,6 @@ class TreeSearch(object):
         while self.open:
             current_visit = self.open.pop(0)
             visit_node = current_visit[1]
-            # while visit_node.depth > 30:
-            #     current_visit = self.open.pop(0)
-            #     visit_node = current_visit[1]
 
             # print("Score: ", current_visit[0])
             # print("Depth", visit_node.depth)
