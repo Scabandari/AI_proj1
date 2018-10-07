@@ -1,3 +1,4 @@
+from operator import itemgetter
 from node import Node
 from board import Board
 from copy import deepcopy
@@ -5,15 +6,15 @@ from copy import deepcopy
 
 class TreeSearch(object):
 
-    def __init__(self, board_cols, board_rows, starting_list):
+    def __init__(self, goal_state, board_cols, board_rows, starting_list):
         # self.correct_state = [1, 2, 3, 0]
-        self.correct_state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,  0]
+        self.correct_state = goal_state  # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,  0]
         self.board_cols = board_cols
         self.board_rows = board_rows
         self.starting_list = starting_list
         self.root_node = Node(
             depth=0,
-            #board=Board(2, 2, [3, 0, 1, 2])
+            # board=Board(2, 2, [3, 0, 1, 2])
             board=Board(self.board_cols, self.board_rows, deepcopy(starting_list))
         )
         self.priority_queue = [(0, deepcopy(self.root_node))]  # used in astar algo
@@ -30,10 +31,11 @@ class TreeSearch(object):
             8: Board.UP_LEFT
         }
         self.solution = []
+        self.HEURISTIC = False
 
     def bubble_sort(self):  # todo this is wrong
         """This function sorts the priority queue after adding a node"""
-        for reverse_index in range(len(self.priority_queue) -2, 1, -1):  # loop backwards
+        for reverse_index in range(len(self.priority_queue) - 2, 1, -1):  # loop backwards
             for index in range(reverse_index):
                 if self.priority_queue[index][0] > self.priority_queue[index + 1][0]:
                     swap = self.priority_queue[index + 1]
@@ -42,7 +44,8 @@ class TreeSearch(object):
                 # if they're the same then break the tie using node.board.move_series
                 elif self.priority_queue[index] == self.priority_queue[index + 1]:
                     for i in range(len(self.priority_queue[index][1].board.move_series) - 1, 1, -1):
-                        if self.priority_queue[index][1].board.move_series[i] > self.priority_queue[index + 1][1].board.move_series[i]:
+                        if self.priority_queue[index][1].board.move_series[i] > \
+                                self.priority_queue[index + 1][1].board.move_series[i]:
                             swap = self.priority_queue[index + 1]
                             self.priority_queue[index + 1] = self.priority_queue[index]
                             self.priority_queue[index] = swap
@@ -54,7 +57,7 @@ class TreeSearch(object):
                 return False
         return True
 
-    def depth_first_search(self):  # todo DFS not finding solution?
+    def depth_first_search(self, depth):  # todo DFS not finding solution?
         dfs_open = deepcopy(self.open)
         dfs_closed = deepcopy(self.closed)
         while dfs_open:
@@ -62,6 +65,10 @@ class TreeSearch(object):
             if self.check_goal_state(visit_node):
                 return visit_node
 
+            # visit_node.print_node()
+            if visit_node.depth >= depth:
+                # print("ey")
+                continue
             children = self.generate_children(visit_node.depth, visit_node)
             # add children to open, depth first --> LIFO
             while children:
@@ -93,8 +100,8 @@ class TreeSearch(object):
                 penalty += 1
         return penalty
 
-
         # todo put
+
     def generate_children(self, parent_depth, parent_node):
         """This function should generate all possible moves except for the move
         that would undo the move that got to this current state: action, check_children()
@@ -120,7 +127,11 @@ class TreeSearch(object):
             Node is truly new and therefor useful"""
         if TreeSearch.same_state(child_node, parent_node):
             return False
-        for node in self.open:
+        for item in self.open:
+            if self.HEURISTIC:
+                node = item[1]
+            else:
+                node = item
             if TreeSearch.same_state(node, child_node):
                 return False
         for node in self.closed:
@@ -155,9 +166,105 @@ class TreeSearch(object):
         for tuple_ in self.solution:
             tuple_[1].board.print_board()
 
+    def manhattan_distance(self, current_state):
+        """
+        Computes the sum of how far each digit is from its goal position
+        :param current_state: current board state gotten from node currently being examined
+        :return: int, total manhattan distance
+        """
 
+        manhattan_distance = 0
 
+        # compute row diff and col diff of digit's current and goal positions, largest diff = # moves to get to goal
+        for i in range(self.board_rows):
+            for j in range(self.board_cols):
+                # if i > 0:
+                #     j_ = j + 1
+                # else:
+                #     j_ = j
+                current_digit = current_state[self.board_cols * i + j]
+                goal_position = self.correct_state.index(current_digit)
+                goal_position_row = int(goal_position / self.board_cols)
+                goal_position_col = goal_position - (self.board_cols * goal_position_row)
 
+                row_diff = abs(goal_position_row - i)
+                col_diff = abs(goal_position_col - j)
 
+                # add largest diff to manhattan distance sum
+                if row_diff >= col_diff:
+                    manhattan_distance += row_diff
+                else:
+                    manhattan_distance += col_diff
 
+        return manhattan_distance
 
+    def permutation_inversions(self, current_state):
+        """
+        for each digit, check how many digits on its right should be on its left
+        :param current_state:
+        :return: total score
+        """
+        score = 0
+        puzzle_size = len(current_state)
+        for i in range(puzzle_size - 1):
+            goal_position = self.correct_state.index(current_state[i])
+            left_sequence = self.correct_state[:goal_position]
+            for j in range(i + 1, puzzle_size):
+                if current_state[j] in left_sequence:
+                    score += 1
+        return score
+
+    def hamming_distance(self, current_state):
+        score = 0
+        for i in range(len(current_state)):
+            if self.correct_state[i] != current_state[i]:
+                score += 1
+        return score
+
+    def best_first_search(self, depth, heuristic=None):
+        """
+        Best First Search with choice between 2 heuristics
+        Heuristic 1: Manhattan distance
+        Heuristic 2: Sum of permutation inversions
+        :return: final node
+        """
+        self.HEURISTIC = True
+        self.open = [(1, self.open[0])]
+        # turned open list into a list of tuples in the format of (score, node)
+        while self.open:
+            current_visit = self.open.pop(0)
+            visit_node = current_visit[1]
+
+            # print("Score: ", current_visit[0])
+            # print("Depth", visit_node.depth)
+            # visit_node.print_node()
+
+            if self.check_goal_state(visit_node):
+                self.HEURISTIC = False
+                self.open = [self.root_node]
+                return visit_node
+
+            if visit_node.depth >= depth:
+                print("Skip due to depth")
+                continue
+
+            children = self.generate_children(visit_node.depth, visit_node)
+            for child in children:
+                if heuristic == 1:
+                    score = self.hamming_distance(child.board.state)
+                    self.open.append((score, child))
+                elif heuristic == 2:
+                    score = self.permutation_inversions(child.board.state)
+                    if score % 2 == 0:
+                        self.open.append((score, child))
+                elif heuristic == 3:
+                    score = self.manhattan_distance(child.board.state)
+                    self.open.append((score, child))
+                else:
+                    import sys
+                    sys.exit('Invalid heuristic function')
+                # self.open.append((score + child.depth, child))
+                self.open.append((score, child))
+            self.open.sort(key=itemgetter(0))
+            # print(self.open)
+            self.closed.append(visit_node)
