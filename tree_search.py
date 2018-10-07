@@ -168,13 +168,17 @@ class TreeSearch(object):
         :param current_state: current board state gotten from node currently being examined
         :return: int, total manhattan distance
         """
-        # TODO: timeout when its stuck?
+
         manhattan_distance = 0
 
         # compute row diff and col diff of digit's current and goal positions, largest diff = # moves to get to goal
         for i in range(self.board_rows):
             for j in range(self.board_cols):
-                current_digit = current_state[self.board_rows * i + j]
+                # if i > 0:
+                #     j_ = j + 1
+                # else:
+                #     j_ = j
+                current_digit = current_state[self.board_cols * i + j]
                 goal_position = self.correct_state.index(current_digit)
                 goal_position_row = int(goal_position / self.board_cols)
                 goal_position_col = goal_position - (self.board_cols * goal_position_row)
@@ -190,7 +194,7 @@ class TreeSearch(object):
 
         return manhattan_distance
 
-    def permutation_inversions(self, current_state):  # TODO: add puzzle solvability check? even=solvable
+    def permutation_inversions(self, current_state):
         """
         for each digit, check how many digits on its right should be on its left
         :param current_state:
@@ -206,7 +210,14 @@ class TreeSearch(object):
                     score += 1
         return score
 
-    def best_first_search(self, heuristic=None):
+    def hamming_distance(self, current_state):
+        score = 0
+        for i in range(len(current_state)):
+            if self.correct_state[i] != current_state[i]:
+                score += 1
+        return score
+
+    def best_first_search(self, depth, heuristic=None):
         """
         Best First Search with choice between 2 heuristics
         Heuristic 1: Manhattan distance
@@ -219,20 +230,35 @@ class TreeSearch(object):
         while self.open:
             current_visit = self.open.pop(0)
             visit_node = current_visit[1]
+            # while visit_node.depth > 30:
+            #     current_visit = self.open.pop(0)
+            #     visit_node = current_visit[1]
+
+            # print("Score: ", current_visit[0])
+            # print("Depth", visit_node.depth)
             # visit_node.print_node()
-            # print(current_visit[0])
 
             if self.check_goal_state(visit_node):
                 self.HEURISTIC = False
                 self.open = [self.root_node]
                 return visit_node
 
+            if visit_node.depth >= depth:
+                print("Skip due to depth")
+                continue
+
             children = self.generate_children(visit_node.depth, visit_node)
             for child in children:
                 if heuristic == 1:
-                    score = self.manhattan_distance(child.board.state)
+                    score = self.hamming_distance(child.board.state)
+                    self.open.append((score, child))
                 elif heuristic == 2:
                     score = self.permutation_inversions(child.board.state)
+                    if score % 2 == 0:
+                        self.open.append((score, child))
+                elif heuristic == 3:
+                    score = self.manhattan_distance(child.board.state)
+                    self.open.append((score, child))
                 else:
                     import sys
                     sys.exit('Invalid heuristic function')

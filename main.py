@@ -16,8 +16,10 @@ import heapq as heap
 # below is just for testing
 cols = 4
 rows = 3
-starting_list = [1, 0, 3, 7, 5, 2, 6, 4, 9, 10, 11, 8]
-goal_state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,  0]
+starting_list = [10, 11, 3, 7, 0, 2, 6, 4, 9, 1, 5, 8]
+goal_state = [1, 2, 3, 4,
+              5, 6, 7, 8,
+              9, 10, 11,  0]
 
 """"For h1 and h2 for best first search see notes on search around slide 70"""
 ts = TreeSearch(goal_state, cols, rows, starting_list)
@@ -39,7 +41,7 @@ ts = TreeSearch(goal_state, cols, rows, starting_list)
 # ts = TreeSearch(goal_state, cols, rows, initial_state)
 
 # sol_node = ts.depth_first_search()
-sol_node = ts.best_first_search(2)
+sol_node = ts.best_first_search(100, 2)  # depth, heuristic nbr
 # sol_node.print_node()
 ts.unravel_solution(sol_node)
 ts.print_solution_boards()

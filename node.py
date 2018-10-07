@@ -15,10 +15,10 @@ class Node(object):
 
     def print_node(self):
         if self.parent_node is None:
-            print("0 ", self.board.state)
+            print("0 ")
         else:
-            print(self.action, self.board.state)
-
+            print(self.action)
+        self.board.print_board()
 
 
 
