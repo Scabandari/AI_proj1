@@ -130,6 +130,7 @@ class Board(object):
         if zero_index % self.cols is 0 or zero_index > limit:
             return False
         Board.swap(state, zero_index, zero_index + self.cols - 1)
+        return state
 
     def down_right(self, zero_index, state):
         limit = len(state) - self.cols - 1

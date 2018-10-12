@@ -17,7 +17,7 @@ class TreeSearch(object):
             # board=Board(2, 2, [3, 0, 1, 2])
             board=Board(self.board_cols, self.board_rows, deepcopy(starting_list))
         )
-        self.priority_queue = [(0, deepcopy(self.root_node))]  # used in astar algo
+        #self.priority_queue = [(0, deepcopy(self.root_node))]  # used in astar algo
         self.open = [deepcopy(self.root_node)]
         self.closed = []
         self.board_moves = {
@@ -33,35 +33,17 @@ class TreeSearch(object):
         self.solution = []
         self.HEURISTIC = False
 
-    def bubble_sort(self):  # todo this is wrong
-        """This function sorts the priority queue after adding a node"""
-        for reverse_index in range(len(self.priority_queue) - 2, 1, -1):  # loop backwards
-            for index in range(reverse_index):
-                if self.priority_queue[index][0] > self.priority_queue[index + 1][0]:
-                    swap = self.priority_queue[index + 1]
-                    self.priority_queue[index + 1] = self.priority_queue[index]
-                    self.priority_queue[index] = swap
-                # if they're the same then break the tie using node.board.move_series
-                elif self.priority_queue[index] == self.priority_queue[index + 1]:
-                    for i in range(len(self.priority_queue[index][1].board.move_series) - 1, 1, -1):
-                        if self.priority_queue[index][1].board.move_series[i] > \
-                                self.priority_queue[index + 1][1].board.move_series[i]:
-                            swap = self.priority_queue[index + 1]
-                            self.priority_queue[index + 1] = self.priority_queue[index]
-                            self.priority_queue[index] = swap
-                            break
-
     def check_goal_state(self, node):
-        for piece, index in enumerate(node.board.state):
+        for index in range(len(node.board.state)):
             if self.correct_state[index] != node.board.state[index]:
                 return False
         return True
 
     def depth_first_search(self, depth):  # todo DFS not finding solution?
-        dfs_open = deepcopy(self.open)
-        dfs_closed = deepcopy(self.closed)
-        while dfs_open:
-            visit_node = dfs_open.pop(0)
+        self.open = [self.root_node]
+        self.closed = []
+        while self.open:
+            visit_node = self.open.pop(0)
             if self.check_goal_state(visit_node):
                 return visit_node
 
@@ -73,24 +55,62 @@ class TreeSearch(object):
             # add children to open, depth first --> LIFO
             while children:
                 node = children.pop(0)
-                dfs_open.insert(0, node)
-            dfs_closed.append(visit_node)
+                self.open.insert(0, node)
+            self.closed.append(visit_node)
 
-    # todo test this
-    def astar_algo(self):
-        # todo need to make f(n) = g(n) & h(n) cuz need f(n) value is what heap uses to sort
-        # f(n) = node.depth + self.heuristic_one(node)
-        # add a tuple (f(node), node)
-        astar_closed = deepcopy(self.closed)
-        while self.priority_queue:
-            visit_node = self.priority_queue.pop(0)[1]
+    def iterative_deepening(self, max_depth_limit):
+        print("Beginning iterative deepening\n")
+        for depth_limit in range(1, max_depth_limit):
+            print("Depth: {}".format(depth_limit))
+            sol_node = self.depth_first_search(depth_limit)
+            if sol_node:
+                return sol_node
+        print("Did not find solution using iterative "
+              "deepening with maximum depth to try: {}"
+              .format(max_depth_limit))
+
+    def astar_algo(self, depth, heuristic=None):
+        self.HEURISTIC = True
+        self.open = [(1, self.open[0])]
+        self.closed = []
+        # turned open list into a list of tuples in the format of (score, node)
+        while self.open:
+            current_visit = self.open.pop(0)
+            visit_node = current_visit[1]
+
+            # print("Score: ", current_visit[0])
+            # print("Depth", visit_node.depth)
+            # visit_node.print_node()
+
             if self.check_goal_state(visit_node):
+                self.HEURISTIC = False
                 return visit_node
+
+            if visit_node.depth >= depth:
+                print("Skip due to depth")
+                continue
+
+            self.closed.append(visit_node)
             children = self.generate_children(visit_node.depth, visit_node)
-            while children:
-                node = children.pop(0)
-                f_val = node.depth + self.heuristic_one(node)
-                self.priority_queue.append((f_val, node))
+            fnscore_children = []
+            for child in children:
+                fnscore_children.append(((child.depth + heuristic(child.board.state)), child))
+            self.open += fnscore_children
+            self.open.sort(key=itemgetter(0))
+        self.HEURISTIC = False
+
+
+
+        # astar_closed = deepcopy(self.closed)
+        # while self.priority_queue:
+        #     visit_node = self.priority_queue.pop(0)[1]
+        #     if self.check_goal_state(visit_node):
+        #         return visit_node
+        #     children = self.generate_children(visit_node.depth, visit_node)
+        #     while children:
+        #         node = children.pop(0)
+        #         f_val = node.depth + self.heuristic_one(node)
+        #         self.priority_queue.append((f_val, node))
 
     def heuristic_one(self, node):
         """this functions should return the number of tiles out of place for node.board.state"""
@@ -100,16 +120,11 @@ class TreeSearch(object):
                 penalty += 1
         return penalty
 
-        # todo put
-
     def generate_children(self, parent_depth, parent_node):
         """This function should generate all possible moves except for the move
         that would undo the move that got to this current state: action, check_children()
         will make sure that new board states aren't created that are already in open or closed
         lists"""
-        # child states should not equal parent_state
-
-        # take the parent node and generate all possible children
         children = []
         for key, value in self.board_moves.items():
             new_state, letter_move = parent_node.board.make_move(value)
