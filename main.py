@@ -38,37 +38,42 @@ ts = TreeSearch(goal_state, cols, rows, starting_list)
 # #sol_node = ts.depth_first_search()
 
 # A star algo
-# sol_node = ts.astar_algo(200, ts.hamming_distance)
-# if sol_node:
-#     solution_path = ts.unravel_solution(sol_node)
-#     print("Solution for A* algorithm: \n")
-#     ts.print_solution_boards()
-#     output_text_file(solution_path, "puzzleAS-h1")
-#     ts.reset_solution()
-
-sol_node = ts.astar_algo(200, ts.manhattan_distance)
+# sol_node = ts.astar_algo(200, ts.permutation_inversions)
+sol_node = ts.astar_algo(200, ts.hamming_distance)
 if sol_node:
     solution_path = ts.unravel_solution(sol_node)
-    print("Solution for A* algorithm: \n")
+    print("Solution for A* algorithm using permutation inversions: \n")
     ts.print_solution_boards()
-    output_text_file(solution_path, "puzzleAS-h2")
+    output_text_file(solution_path, "puzzleAS-h1")
     ts.reset_solution()
+else:
+    print("Solution not found for A* + ...")
+
+# sol_node = ts.astar_algo(50, ts.manhattan_distance)
+# if sol_node:
+#     solution_path = ts.unravel_solution(sol_node)
+#     print("Solution for A* algorithm: Manhattan Distance \n")
+#     ts.print_solution_boards()
+#     output_text_file(solution_path, "puzzleAS-h2")
+#     ts.reset_solution()
 
 """For iterative deepening, may not find solution & return None
     therefore: if sol_node = it_deep()"""
 # sol_node = ts.depth_first_search(15)
 
 # iterative deepening
-sol_node = ts.iterative_deepening(100)
-if sol_node:
-    solution_path = ts.unravel_solution(sol_node)
-    print("Solution for iterative deepening: \n")
-    ts.print_solution_boards()
-    output_text_file(solution_path, "puzzleDFS-h1")
-    ts.reset_solution()
+# sol_node = ts.iterative_deepening(100)
+# if sol_node:
+#     solution_path = ts.unravel_solution(sol_node)
+#     print("Solution for iterative deepening: \n")
+#     ts.print_solution_boards()
+#     output_text_file(solution_path, "puzzleDFS")
+#     ts.reset_solution()
+
+# todo don't forget to reset the solution
 # sol_node = ts.best_first_search(1000, 3)  # depth, heuristic nbr
 # sol_node.print_node()
 # solution_path = ts.unravel_solution(sol_node)
 # ts.print_solution_boards()
-# output_text_file(solution_path, "puzzleDFS")
+# output_text_file(solution_path, "puzzleBFS")
 

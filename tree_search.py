@@ -2,6 +2,18 @@ from operator import itemgetter
 from node import Node
 from board import Board
 from copy import deepcopy
+from utils import first_two
+
+"""
+Something we can reference for tie breaking in the report here:
+https://stackoverflow.com/questions/18414995/how-can-i-sort-tuples-by-reverse-yet-breaking-ties-non-reverse-python#18415016
+We'll sort by the latest move of the node which is node.board.move_series[-1]
+Referencing the link above we can use sorted which sorts by each element in the tuple.
+Our tuples will look like (f(n), tie breaker, node) meaning sorted() will try to sort by type
+node which it can't therefore key=first_two
+# https://www.programiz.com/python-programming/methods/built-in/sorted
+
+"""
 
 
 class TreeSearch(object):
@@ -17,7 +29,6 @@ class TreeSearch(object):
             # board=Board(2, 2, [3, 0, 1, 2])
             board=Board(self.board_cols, self.board_rows, deepcopy(starting_list))
         )
-        #self.priority_queue = [(0, deepcopy(self.root_node))]  # used in astar algo
         self.open = [deepcopy(self.root_node)]
         self.closed = []
         self.board_moves = {
@@ -40,6 +51,7 @@ class TreeSearch(object):
         return True
 
     def depth_first_search(self, depth):  # todo DFS not finding solution?
+        self.HEURISTIC = False
         self.open = [self.root_node]
         self.closed = []
         while self.open:
@@ -71,12 +83,12 @@ class TreeSearch(object):
 
     def astar_algo(self, depth, heuristic=None):
         self.HEURISTIC = True
-        self.open = [(1, self.open[0])]
+        self.open = [(1, 1, self.root_node)]
         self.closed = []
         # turned open list into a list of tuples in the format of (score, node)
         while self.open:
             current_visit = self.open.pop(0)
-            visit_node = current_visit[1]
+            visit_node = current_visit[2]
 
             # print("Score: ", current_visit[0])
             # print("Depth", visit_node.depth)
@@ -94,31 +106,16 @@ class TreeSearch(object):
             children = self.generate_children(visit_node.depth, visit_node)
             fnscore_children = []
             for child in children:
-                fnscore_children.append(((child.depth + heuristic(child.board.state)), child))
+                fnscore_children.append(
+                    (child.depth + heuristic(child.board.state),
+                     child.board.move_series[-1],
+                     child)
+                )
             self.open += fnscore_children
-            self.open.sort(key=itemgetter(0))
+            # https://www.programiz.com/python-programming/methods/built-in/sorted
+            self.open = sorted(self.open, key=first_two)
+            #self.open.sort(key=itemgetter(0))
         self.HEURISTIC = False
-
-
-
-        # astar_closed = deepcopy(self.closed)
-        # while self.priority_queue:
-        #     visit_node = self.priority_queue.pop(0)[1]
-        #     if self.check_goal_state(visit_node):
-        #         return visit_node
-        #     children = self.generate_children(visit_node.depth, visit_node)
-        #     while children:
-        #         node = children.pop(0)
-        #         f_val = node.depth + self.heuristic_one(node)
-        #         self.priority_queue.append((f_val, node))
-
-    def heuristic_one(self, node):
-        """this functions should return the number of tiles out of place for node.board.state"""
-        penalty = 0
-        for val, index in enumerate(self.correct_state):
-            if val != node.board.state[index]:
-                penalty += 1
-        return penalty
 
     def generate_children(self, parent_depth, parent_node):
         """This function should generate all possible moves except for the move
@@ -144,7 +141,8 @@ class TreeSearch(object):
             return False
         for item in self.open:
             if self.HEURISTIC:
-                node = item[1]
+                #node = item[1]  # todo this may break Jenny's code cuz tuples of 3 now not 2
+                node = item[2]
             else:
                 node = item
             if TreeSearch.same_state(node, child_node):
@@ -229,6 +227,14 @@ class TreeSearch(object):
                     score += 1
         return score
 
+    # def heuristic_one(self, node):
+    #     """this functions should return the number of tiles out of place for node.board.state"""
+    #     penalty = 0
+    #     for val, index in enumerate(self.correct_state):
+    #         if val != node.board.state[index]:
+    #             penalty += 1
+    #     return penalty
+
     def hamming_distance(self, current_state):
         score = 0
         for i in range(len(current_state)):
@@ -244,12 +250,11 @@ class TreeSearch(object):
         :return: final node
         """
         self.HEURISTIC = True
-        self.open = [(1, self.open[0])]
+        self.open = [(1, self.open[0])]  # todo could be a problem if self.open[0] != self.root_node?
         # turned open list into a list of tuples in the format of (score, node)
         while self.open:
             current_visit = self.open.pop(0)
             visit_node = current_visit[1]
-
             # print("Score: ", current_visit[0])
             # print("Depth", visit_node.depth)
             # visit_node.print_node()
@@ -283,3 +288,4 @@ class TreeSearch(object):
             self.open.sort(key=itemgetter(0))
             # print(self.open)
             self.closed.append(visit_node)
+
