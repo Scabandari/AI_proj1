@@ -19,5 +19,7 @@ def output_text_file(tuples, file_name):
             txt_file.write(str(tuple_[0]) + " " + list_to_string(tuple_[1].board.state) + "\n")
 
 
-
-
+# https://www.programiz.com/python-programming/methods/built-in/sorted
+def first_two(three_tupple):
+    """Returns first 2 elems of 3 tuple"""
+    return three_tupple[0], three_tupple[1]
