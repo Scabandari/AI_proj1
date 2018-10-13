@@ -42,7 +42,7 @@ ts = TreeSearch(goal_state, cols, rows, starting_list)
 sol_node = ts.astar_algo(200, ts.hamming_distance)
 if sol_node:
     solution_path = ts.unravel_solution(sol_node)
-    print("Solution for A* algorithm using permutation inversions: \n")
+    print("Solution for A* algorithm using hamming distance: \n")
     ts.print_solution_boards()
     output_text_file(solution_path, "puzzleAS-h1")
     ts.reset_solution()
@@ -71,9 +71,11 @@ else:
 #     ts.reset_solution()
 
 # todo don't forget to reset the solution
-# sol_node = ts.best_first_search(1000, 3)  # depth, heuristic nbr
-# sol_node.print_node()
-# solution_path = ts.unravel_solution(sol_node)
-# ts.print_solution_boards()
-# output_text_file(solution_path, "puzzleBFS")
+ts.reset_solution()
+sol_node = ts.best_first_search(1000, 3)  # depth, heuristic nbr
+print("Found solution using BFS manhattan distance")
+sol_node.print_node()
+solution_path = ts.unravel_solution(sol_node)
+ts.print_solution_boards()
+output_text_file(solution_path, "puzzleBFS")
 
