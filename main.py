@@ -96,11 +96,13 @@ else:
 #     print("\nSolution not found for Iterative deepening\n")
 
 # todo don't forget to reset the solution
-# sol_node = ts.best_first_search(1000, 3)  # depth, heuristic nbr
-# sol_node.print_node()
-# solution_path = ts.unravel_solution(sol_node)
-# ts.print_solution_boards()
-# output_text_file(solution_path, "puzzleBFS")
+ts.reset_solution()
+sol_node = ts.best_first_search(1000, 3)  # depth, heuristic nbr
+print("Found solution using BFS manhattan distance")
+sol_node.print_node()
+solution_path = ts.unravel_solution(sol_node)
+ts.print_solution_boards()
+output_text_file(solution_path, "puzzleBFS")
 
 
 print("\nThe run times for the different algorithms in millis: \n")

@@ -239,11 +239,12 @@ class TreeSearch(object):
         :return: final node
         """
         self.HEURISTIC = True
-        self.open = [(1, self.open[0])]  # todo could be a problem if self.open[0] != self.root_node?
+        # self.open = [(1, self.open[0])]  # todo could be a problem if self.open[0] != self.root_node?
+        self.open = [(1, 1, self.root_node)]
         # turned open list into a list of tuples in the format of (score, node)
         while self.open:
             current_visit = self.open.pop(0)
-            visit_node = current_visit[1]
+            visit_node = current_visit[2]
             # print("Score: ", current_visit[0])
             # print("Depth", visit_node.depth)
             # visit_node.print_node()
@@ -253,6 +254,8 @@ class TreeSearch(object):
                 self.open = [self.root_node]
                 return visit_node
 
+            self.closed.append(visit_node)
+
             if visit_node.depth >= depth:
                 print("Skip due to depth")
                 continue
@@ -261,20 +264,20 @@ class TreeSearch(object):
             for child in children:
                 if heuristic == 1:
                     score = self.hamming_distance(child.board.state)
-                    self.open.append((score, child))
+                    self.open.append((score, child.board.move_series[-1], child))
                 elif heuristic == 2:
-                    score = self.permutation_inversions(child.board.state)
+                    score = self.permutation_inversions(child.board.state)  # todo overestimates
                     if score % 2 == 0:
-                        self.open.append((score, child))
+                        self.open.append((score, child.board.move_series[-1], child))
                 elif heuristic == 3:
                     score = self.manhattan_distance(child.board.state)
-                    self.open.append((score, child))
+                    self.open.append((score, child.board.move_series[-1], child))
                 else:
                     import sys
                     sys.exit('Invalid heuristic function')
                 # self.open.append((score + child.depth, child))
-                self.open.append((score, child))
-            self.open.sort(key=itemgetter(0))
+                self.open.append((score, child.board.move_series[-1], child))
+            self.open = sorted(self.open, key=first_two)
             # print(self.open)
-            self.closed.append(visit_node)
+
 
