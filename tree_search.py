@@ -4,6 +4,7 @@ from board import Board
 from copy import deepcopy
 from utils import first_two
 
+
 """
 Something we can reference for tie breaking in the report here:
 https://stackoverflow.com/questions/18414995/how-can-i-sort-tuples-by-reverse-yet-breaking-ties-non-reverse-python#18415016
@@ -89,10 +90,6 @@ class TreeSearch(object):
         while self.open:
             current_visit = self.open.pop(0)
             visit_node = current_visit[2]
-
-            # print("Score: ", current_visit[0])
-            # print("Depth", visit_node.depth)
-            # visit_node.print_node()
 
             if self.check_goal_state(visit_node):
                 self.HEURISTIC = False
@@ -226,14 +223,6 @@ class TreeSearch(object):
                 if current_state[j] in left_sequence:
                     score += 1
         return score
-
-    # def heuristic_one(self, node):
-    #     """this functions should return the number of tiles out of place for node.board.state"""
-    #     penalty = 0
-    #     for val, index in enumerate(self.correct_state):
-    #         if val != node.board.state[index]:
-    #             penalty += 1
-    #     return penalty
 
     def hamming_distance(self, current_state):
         score = 0

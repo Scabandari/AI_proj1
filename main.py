@@ -1,5 +1,13 @@
+import datetime
 from tree_search import TreeSearch
 from utils import output_text_file
+
+ASTAR_HAMMING = 'A* & hamming distance: '
+ASTAR_MANHATTAN = 'A* & manhattan distance: '
+ITERATIVE_DEEPENING = 'Iterative deepening: '
+BFS_HAMMING = 'Best first search & hamming distance: '
+BFS_MANHATTAN = 'Best first search & manhattan distance'
+algo_runtimes = {}
 
 # Get input from the user
 # cols = input("Enter the number of columns: ")
@@ -37,38 +45,55 @@ ts = TreeSearch(goal_state, cols, rows, starting_list)
 # it does however with iterative deepening
 # #sol_node = ts.depth_first_search()
 
-# A star algo
-# sol_node = ts.astar_algo(200, ts.permutation_inversions)
+# A star algo & hamming
+start = datetime.datetime.now()  # https://stackoverflow.com/questions/766335/python-speed-testing-time-difference-milliseconds
 sol_node = ts.astar_algo(200, ts.hamming_distance)
+end = datetime.datetime.now()
+difference = end - start
+algo_runtimes[ASTAR_HAMMING] = difference.microseconds/1000
 if sol_node:
     solution_path = ts.unravel_solution(sol_node)
-    print("Solution for A* algorithm using permutation inversions: \n")
+    print("Solution for A* algorithm using hamming distance: \n")
     ts.print_solution_boards()
     output_text_file(solution_path, "puzzleAS-h1")
     ts.reset_solution()
 else:
-    print("Solution not found for A* + ...")
+    print("Solution not found for A* & hamming distance")
 
-# sol_node = ts.astar_algo(50, ts.manhattan_distance)
+# A star algo & manhattan
+# start = datetime.datetime.now()
+# sol_node = ts.astar_algo(200, ts.manhattan_distance)
+# end = datetime.datetime.now()
+# difference = end - start
+# algo_runtimes[ASTAR_MANHATTAN] = difference.microseconds/1000
 # if sol_node:
 #     solution_path = ts.unravel_solution(sol_node)
 #     print("Solution for A* algorithm: Manhattan Distance \n")
 #     ts.print_solution_boards()
 #     output_text_file(solution_path, "puzzleAS-h2")
 #     ts.reset_solution()
+# else:
+#     print("Solution not found for A* & manhattan distance")
+
 
 """For iterative deepening, may not find solution & return None
     therefore: if sol_node = it_deep()"""
 # sol_node = ts.depth_first_search(15)
 
 # iterative deepening
+# start = datetime.datetime.now()
 # sol_node = ts.iterative_deepening(100)
+# end = datetime.datetime.now()
+# difference = end - start
+# algo_runtimes[ITERATIVE_DEEPENING] = difference.microseconds/1000
 # if sol_node:
 #     solution_path = ts.unravel_solution(sol_node)
 #     print("Solution for iterative deepening: \n")
 #     ts.print_solution_boards()
 #     output_text_file(solution_path, "puzzleDFS")
 #     ts.reset_solution()
+# else:
+#     print("\nSolution not found for Iterative deepening\n")
 
 # todo don't forget to reset the solution
 # sol_node = ts.best_first_search(1000, 3)  # depth, heuristic nbr
@@ -76,4 +101,9 @@ else:
 # solution_path = ts.unravel_solution(sol_node)
 # ts.print_solution_boards()
 # output_text_file(solution_path, "puzzleBFS")
+
+
+print("\nThe run times for the different algorithms in millis: \n")
+for algo in algo_runtimes:
+    print("{}: {}".format(algo, algo_runtimes[algo]))
 
