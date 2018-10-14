@@ -15,28 +15,29 @@ algo_runtimes = {}
 # cols = input("Enter the number of columns: ")
 # rows = input("Enter the number of rows: ")
 # cols, rows = int(cols), int(rows)
-# starting_list = []
+starting_list = []
+cols = 4
+rows = 3
 # goal_state = []
 # for i in range(cols*rows):
 #     next_num = input("Enter the next number for the goal state: ")
 #     next_num = int(next_num)
 #     goal_state.append(next_num)
 #
-# for j in range(cols*rows):
-#     next_num = input("Enter the next number for the starting list: ")
-#     next_num = int(next_num)
-#     starting_list.append(next_num)
+for j in range(cols*rows):
+    next_num = input("Enter the next number for the starting list: ")
+    next_num = int(next_num)
+    starting_list.append(next_num)
 
 
 # below is just for testing
-cols = 4
-rows = 3
+
 # starting_list = [11, 9, 3, 7,
 #                  0, 2, 6, 4,
 #                  10, 1, 5, 8]
-starting_list = [1, 0, 3, 7,
-                 5, 2, 6, 4,
-                 9, 10, 11, 8]
+# starting_list = [1, 0, 3, 7,
+#                  5, 2, 6, 4,
+#                  9, 10, 11, 8]
 goal_state = [1, 2, 3, 4,
               5, 6, 7, 8,
               9, 10, 11, 0]
