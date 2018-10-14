@@ -5,18 +5,6 @@ from copy import deepcopy
 from utils import first_two
 
 
-"""
-Something we can reference for tie breaking in the report here:
-https://stackoverflow.com/questions/18414995/how-can-i-sort-tuples-by-reverse-yet-breaking-ties-non-reverse-python#18415016
-We'll sort by the latest move of the node which is node.board.move_series[-1]
-Referencing the link above we can use sorted which sorts by each element in the tuple.
-Our tuples will look like (f(n), tie breaker, node) meaning sorted() will try to sort by type
-node which it can't therefore key=first_two
-# https://www.programiz.com/python-programming/methods/built-in/sorted
-
-"""
-
-
 class TreeSearch(object):
 
     def __init__(self, goal_state, board_cols, board_rows, starting_list):
@@ -95,20 +83,27 @@ class TreeSearch(object):
                 self.HEURISTIC = False
                 return visit_node
 
+            self.closed.append(visit_node)
+
             if visit_node.depth >= depth:
                 print("Skip due to depth")
                 continue
 
-            self.closed.append(visit_node)
             children = self.generate_children(visit_node.depth, visit_node)
-            fnscore_children = []
+            #fnscore_children = []
+            # for child in children:
+            #     fnscore_children.append(
+            #         (child.depth + heuristic(child.board.state),
+            #          child.board.move_series[-1],
+            #          child)
+            #     )
+            # self.open += fnscore_children
             for child in children:
-                fnscore_children.append(
+                self.open.append(
                     (child.depth + heuristic(child.board.state),
                      child.board.move_series[-1],
                      child)
                 )
-            self.open += fnscore_children
             # https://www.programiz.com/python-programming/methods/built-in/sorted
             self.open = sorted(self.open, key=first_two)
             #self.open.sort(key=itemgetter(0))
@@ -239,8 +234,9 @@ class TreeSearch(object):
         :return: final node
         """
         self.HEURISTIC = True
-        # self.open = [(1, self.open[0])]  # todo could be a problem if self.open[0] != self.root_node?
+        # self.open = [(1, self.open[0])]
         self.open = [(1, 1, self.root_node)]
+        self.closed = []
         # turned open list into a list of tuples in the format of (score, node)
         while self.open:
             current_visit = self.open.pop(0)
