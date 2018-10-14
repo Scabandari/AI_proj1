@@ -44,37 +44,6 @@ goal_state = [1, 2, 3, 4,
 
 ts = TreeSearch(goal_state, cols, rows, starting_list)
 
-# Depth first search does not find a solution on it's own
-
-# start = time.time()
-# sol_node = ts.depth_first_search(100)
-# end = time.time()
-# difference = end - start
-# algo_runtimes[DFS] = difference
-# if sol_node:
-#     solution_path = ts.unravel_solution(sol_node)
-#     print("Solution for DFS: \n")
-#     ts.print_solution_boards()
-#     output_text_file(solution_path, "puzzleDFS")
-#     ts.reset_solution()
-# else:
-#     print("Solution not found for DFS")
-
-# A star algo & hamming
-start = time.time()
-sol_node = ts.astar_algo(1000, ts.hamming_distance)
-end = time.time()
-difference = end - start
-algo_runtimes[ASTAR_HAMMING] = difference
-if sol_node:
-    solution_path = ts.unravel_solution(sol_node)
-    print("Solution for A* algorithm using hamming distance: \n")
-    ts.print_solution_boards()
-    output_text_file(solution_path, "puzzleAS-h1")
-    ts.reset_solution()
-else:
-    print("Solution not found for A* & hamming distance")
-
 # A star algo & manhattan
 start = time.time()
 sol_node = ts.astar_algo(1000, ts.manhattan_distance)
@@ -90,21 +59,6 @@ if sol_node:
 else:
     print("Solution not found for A* & manhattan distance")
 
-
-# iterative deepening
-start = time.time()
-sol_node = ts.iterative_deepening(100)
-end = time.time()
-difference = end - start
-algo_runtimes[ITERATIVE_DEEPENING] = difference
-if sol_node:
-    solution_path = ts.unravel_solution(sol_node)
-    print("Solution for iterative deepening: \n")
-    ts.print_solution_boards()
-    output_text_file(solution_path, "puzzleDFS-It-Deep")
-    ts.reset_solution()
-else:
-    print("\nSolution not found for Iterative deepening\n")
 
 # # # BFS Hamming
 start = time.time()
@@ -135,6 +89,55 @@ if sol_node:
     ts.reset_solution()
 else:
     print("Solution not found for BFS: Manhattan Distance")
+
+
+# A star algo & hamming
+start = time.time()
+sol_node = ts.astar_algo(1000, ts.hamming_distance)
+end = time.time()
+difference = end - start
+algo_runtimes[ASTAR_HAMMING] = difference
+if sol_node:
+    solution_path = ts.unravel_solution(sol_node)
+    print("Solution for A* algorithm using hamming distance: \n")
+    ts.print_solution_boards()
+    output_text_file(solution_path, "puzzleAS-h1")
+    ts.reset_solution()
+else:
+    print("Solution not found for A* & hamming distance")
+
+
+# iterative deepening
+start = time.time()
+sol_node = ts.iterative_deepening(100)
+end = time.time()
+difference = end - start
+algo_runtimes[ITERATIVE_DEEPENING] = difference
+if sol_node:
+    solution_path = ts.unravel_solution(sol_node)
+    print("Solution for iterative deepening: \n")
+    ts.print_solution_boards()
+    output_text_file(solution_path, "puzzleDFS-It-Deep")
+    ts.reset_solution()
+else:
+    print("\nSolution not found for Iterative deepening\n")
+
+
+# Depth first search does not find a solution to most problems
+
+start = time.time()
+sol_node = ts.depth_first_search(100)
+end = time.time()
+difference = end - start
+algo_runtimes[DFS] = difference
+if sol_node:
+    solution_path = ts.unravel_solution(sol_node)
+    print("Solution for DFS: \n")
+    ts.print_solution_boards()
+    output_text_file(solution_path, "puzzleDFS")
+    ts.reset_solution()
+else:
+    print("Solution not found for DFS")
 
 
 print("\nThe run times for the different algorithms in seconds: \n")
